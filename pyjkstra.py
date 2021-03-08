@@ -79,5 +79,3 @@ def dijkstra(l, start, end):
         return_path.append(p.split())
     return return_path
 
-test_list = [[1,1,1],[1,1,1],[1,1,1]]
-print(dijkstra(test_list, [0,0], [2,2]))
