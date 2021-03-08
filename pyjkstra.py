@@ -1,6 +1,5 @@
 def listToGraph(l):
     nodes = {}
-    keys = [] 
     for y in range(len(l)):
         for x in range(len(l[0])):
             associated_nodes = {} 
@@ -11,8 +10,8 @@ def listToGraph(l):
             if y > 0 and l[y-1][x] != 0:
                associated_nodes[(str(y-1)+','+str(y))] = 1 
 
-            if x > 0 and y > 0 and l[y-1][x-1] != 0:
-               associated_nodes[(str(x-1)+','+str(y-1))] = 1 
+            #if x > 0 and y > 0 and l[y-1][x-1] != 0:
+            #   associated_nodes[(str(x-1)+','+str(y-1))] = 1 
 
             if x < len(l[0]) - 1 and l[y][x+1] != 0:
                associated_nodes[(str(x+1)+','+str(y))] = 1 
@@ -20,52 +19,65 @@ def listToGraph(l):
             if y < len(l) - 1 and l[y+1][x] != 0:
                associated_nodes[(str(x)+','+str(y+1))] = 1 
 
-            if x < len(l[0]) - 1 and y < len(l) - 1 and l[y+1][x+1] != 0:
-               associated_nodes[(str(x+1)+','+str(y+1))] = 1 
+            #if x < len(l[0]) - 1 and y < len(l) - 1 and l[y+1][x+1] != 0:
+            #   associated_nodes[(str(x+1)+','+str(y+1))] = 1 
 
-            if x < len(l[0]) - 1 and y > 0 and l[y-1][x+1] != 0:
-               associated_nodes[(str(x+1)+','+str(y-1))] = 1 
+            #if x < len(l[0]) - 1 and y > 0 and l[y-1][x+1] != 0:
+            #   associated_nodes[(str(x+1)+','+str(y-1))] = 1 
 
-            if x > 0 and y < len(l) - 1 and l[y+1][x-1]:
-               associated_nodes[(str(x-1)+','+str(y+1))] = 1 
+            #if x > 0 and y < len(l) - 1 and l[y+1][x-1]:
+            #   associated_nodes[(str(x-1)+','+str(y+1))] = 1 
     
             nodes[node_key] = associated_nodes
-            keys.append(node_key)
-    keys = tuple(keys) 
-    return (nodes, keys)
+    return nodes
 
+def find_path_for_graph(graph, start, end):
+    initial = start
+    path = {}
+    adj_node = {}
+    queue = []
+    for node in graph:
+        path[node] = float("inf")
+        adj_node[node] = None
+        queue.append(node)
+        
+    path[initial] = 0
+    while queue:
+        # find min distance which wasn't marked as current
+        key_min = queue[0]
+        min_val = path[key_min]
+        for n in range(1, len(queue)):
+            if path[queue[n]] < min_val:
+                key_min = queue[n]  
+                min_val = path[key_min]
+        cur = key_min
+        queue.remove(cur)
+        
+        for i in graph[cur]:
+            alternate = graph[cur][i] + path[cur]
+            if path[i] > alternate:
+                path[i] = alternate
+                adj_node[i] = cur
+                
+    final_path = []            
+    x = end
 
-#fully YEETED from https://www.pythonpool.com/dijkstras-algorithm-python/
-def dijkstra(nodes, distances):
-    # These are all the nodes which have not been visited yet
-    unvisited = {node: None for node in nodes}
-    # It will store the shortest distance from one node to another
-    visited = {}
-    current = '0,0'
-    # It will store the predecessors of the nodes
-    currentDistance = 0
-    unvisited[current] = currentDistance
-    # Running the loop while all the nodes have been visited
     while True:
-        # iterating through all the unvisited node
-        for neighbour, distance in distances[current].items():
-            # Iterating through the connected nodes of current_node (for 
-            # example, a is connected with b and c having values 10 and 3
-            # respectively) and the weight of the edges
-            if neighbour not in unvisited: continue
-            newDistance = currentDistance + distance
-            if unvisited[neighbour] is None or unvisited[neighbour] > newDistance:
-                unvisited[neighbour] = newDistance
-        # Till now the shortest distance between the source node and target node 
-        # has been found. Set the current node as the target node
-        visited[current] = currentDistance
-        del unvisited[current]
-        if not unvisited: break
-        candidates = [node for node in unvisited.items() if node[1]]
-        current, currentDistance = sorted(candidates, key = lambda x: x[1])[0]
-    return visited
+        x = adj_node[x]
+        if x is None:
+            break
+        final_path.append(x) 
+    return final_path
 
+def dijkstra(l, start, end):
+    graph = listToGraph(l)
+    s = str(start[0]) + ',' + str(start[1])
+    e = str(end[0]) + ',' + str(end[1])
+    path = find_path_for_graph(graph, s, e)
+    return_path = [] 
+    for p in path:
+        return_path.append(p.split())
+    return return_path
 
 test_list = [[1,1,1],[1,1,1],[1,1,1]]
-(distances, keys) = listToGraph(test_list)
-print(dijkstra(keys, distances))
+print(dijkstra(test_list, [0,0], [2,2]))
